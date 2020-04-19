@@ -40,20 +40,23 @@ public class PlayScreen implements Screen, InputProcessor {
     private Box2DDebugRenderer b2dr;
 
     private Mario mario;
-    Sprite sprite;
 
     private TmxMapLoader mapLoader;
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
+    private Texture left, right, up;
+
     BitmapFont bf;
 
     public PlayScreen(MarioGame marioGame){
 
-        sprite = new Sprite(new Texture("badlogic.jpg"));
+        up = new Texture("up.png");
+        left = new Texture("left.png");
+        right = new Texture("right.png");
+
         bf = new BitmapFont();
         bf.setColor(Color.WHITE);
-        sprite.setPosition(Gdx.graphics.getWidth()/2 - sprite.getWidth()/2, Gdx.graphics.getHeight()/2 - sprite.getHeight()/2);
         Gdx.input.setInputProcessor(this);
         this.game = marioGame;
         gameCam = new OrthographicCamera();
@@ -234,7 +237,7 @@ public class PlayScreen implements Screen, InputProcessor {
         handleInputs(delta);
         gameCam.position.x = mario.body.getPosition().x;
         gameCam.update();
-        world.step(1/30f, 10, 10);
+        world.step(1/30f, 6, 2);
         renderer.setView(gameCam);
     }
 
@@ -246,10 +249,9 @@ public class PlayScreen implements Screen, InputProcessor {
         update(delta);
         b2dr.render(world, gameCam.combined);
         game.batch.begin();
-        game.batch.draw(new Texture("up.png"), 190, Gdx.graphics.getHeight()-800, 250, 200);
-        game.batch.draw(new Texture("right.png"), 440, 100 , 200, 250);
-        game.batch.draw(new Texture("left.png"), 25, 80 , 200, 250);
-        bf.draw(game.batch, sprite.getX() +"   "+ mario.body.getLinearDamping() +" " + sprite.getY(), Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+        game.batch.draw(up, 190, Gdx.graphics.getHeight()-800, 250, 200);
+        game.batch.draw(right, 440, 100 , 200, 250);
+        game.batch.draw(left, 25, 80 , 200, 250);
         game.batch.end();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
@@ -279,7 +281,9 @@ public class PlayScreen implements Screen, InputProcessor {
 
     @Override
     public void dispose() {
-
+        left.dispose();
+        up.dispose();
+        right.dispose();
     }
 
     @Override
@@ -313,9 +317,8 @@ public class PlayScreen implements Screen, InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         int y = Gdx.graphics.getHeight() - screenY;
-        sprite.setPosition(screenX, y);
         if(screenX>= 190 && screenX<= 440 && y >= 250 && y <= 450 ){
-            mario.body.applyLinearImpulse(new Vector2(0, 60f), mario.body.getWorldCenter(),true);
+            mario.body.applyLinearImpulse(new Vector2(0, 8f), mario.body.getWorldCenter(),true);
         }
         if(screenX>= 440 && screenX<= 640 && y >= 100 && y <= 350 ){
             mario.body.applyForceToCenter(new Vector2(30, 0), true);
