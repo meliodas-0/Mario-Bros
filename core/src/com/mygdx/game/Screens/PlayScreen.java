@@ -1,7 +1,6 @@
 package com.mygdx.game.Screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -9,25 +8,19 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.MarioGame;
 import com.mygdx.game.Scenes.Hud;
 import com.mygdx.game.Sprites.Mario;
+import com.mygdx.game.Tools.B2WorldCreator;
 
 public class PlayScreen implements Screen, InputProcessor {
 
@@ -35,6 +28,8 @@ public class PlayScreen implements Screen, InputProcessor {
     private OrthographicCamera gameCam;
     private Viewport gamePort;
     private Hud hud;
+
+    private TextureAtlas atlas;
 
     private World world;
     private Box2DDebugRenderer b2dr;
@@ -49,11 +44,16 @@ public class PlayScreen implements Screen, InputProcessor {
 
     BitmapFont bf;
 
+    int KEY_PRESSED;
+    public final static int KEY_UP = 0 , KEY_LEFT = 1, KEY_RIGHT = 2;
+
     public PlayScreen(MarioGame marioGame){
 
         up = new Texture("up.png");
         left = new Texture("left.png");
         right = new Texture("right.png");
+
+        atlas = new TextureAtlas("Mario_and_Enemies.pack.txt");
 
         bf = new BitmapFont();
         bf.setColor(Color.WHITE);
@@ -70,148 +70,19 @@ public class PlayScreen implements Screen, InputProcessor {
         gameCam.position.set(400, 110, 0);
         gameCam.zoom = 0.2f;
 
-        world = new World(new Vector2(0, -13), true);
+        world = new World(new Vector2(0, -16), true);
         b2dr = new Box2DDebugRenderer();
 
-        BodyDef bodyDef = new BodyDef();
-        PolygonShape shape = new PolygonShape();
-        FixtureDef fixtureDef = new FixtureDef();
-        Body body;
 
+        new B2WorldCreator(world, map);
 
-        //creating static body for hidden coins
-        for(MapObject mapObject: map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
+        mario = new Mario(world, this);
+        mario.body.setGravityScale(2.4f);
 
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
+    }
 
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //creating static body for ground
-        for(MapObject mapObject: map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //creating static body for flag
-        for(MapObject mapObject: map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //creating static body for bricks
-        for(MapObject mapObject: map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //creating static body for pipes
-        for(MapObject mapObject: map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-        //creating static body for undergroundPipes
-        for(MapObject mapObject: map.getLayers().get(7).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //creating static body for lives
-        for(MapObject mapObject: map.getLayers().get(8).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //creating static body for power ups
-        for(MapObject mapObject: map.getLayers().get(9).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //creating static body for hiddenStar
-        for(MapObject mapObject: map.getLayers().get(10).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //creating static body for coins
-        for(MapObject mapObject: map.getLayers().get(11).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject)mapObject).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth()/2, rect.getY() + rect.getHeight()/2);
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        mario = new Mario(world);
-
-        mario.body.setLinearDamping(0.3f);
-
+    public TextureAtlas getAtlas() {
+        return atlas;
     }
 
     @Override
@@ -237,6 +108,7 @@ public class PlayScreen implements Screen, InputProcessor {
         handleInputs(delta);
         gameCam.position.x = mario.body.getPosition().x;
         gameCam.update();
+        mario.update(delta, KEY_PRESSED);
         world.step(1/30f, 6, 2);
         renderer.setView(gameCam);
     }
@@ -248,10 +120,12 @@ public class PlayScreen implements Screen, InputProcessor {
         renderer.render();
         update(delta);
         b2dr.render(world, gameCam.combined);
+        game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
-        game.batch.draw(up, 190, Gdx.graphics.getHeight()-800, 250, 200);
-        game.batch.draw(right, 440, 100 , 200, 250);
-        game.batch.draw(left, 25, 80 , 200, 250);
+        game.batch.draw(up, gameCam.position.x - 170,gameCam.position.y - 40 , 50, 40);
+        game.batch.draw(right, gameCam.position.x - 130, gameCam.position.y - 75 , 40, 50);
+        game.batch.draw(left, gameCam.position.x - 200, gameCam.position.y - 80 , 40, 50);
+        mario.draw(game.batch);
         game.batch.end();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
@@ -284,6 +158,11 @@ public class PlayScreen implements Screen, InputProcessor {
         left.dispose();
         up.dispose();
         right.dispose();
+        map.dispose();
+        renderer.dispose();
+        world.dispose();
+        b2dr.dispose();
+        hud.dispose();
     }
 
     @Override
@@ -318,13 +197,16 @@ public class PlayScreen implements Screen, InputProcessor {
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         int y = Gdx.graphics.getHeight() - screenY;
         if(screenX>= 190 && screenX<= 440 && y >= 250 && y <= 450 ){
-            mario.body.applyLinearImpulse(new Vector2(0, 8f), mario.body.getWorldCenter(),true);
+            mario.body.applyLinearImpulse(new Vector2(0, 10f), mario.body.getWorldCenter(),true);
+            KEY_PRESSED = KEY_UP;
         }
         if(screenX>= 440 && screenX<= 640 && y >= 100 && y <= 350 ){
             mario.body.applyForceToCenter(new Vector2(30, 0), true);
+            KEY_PRESSED = KEY_RIGHT;
         }
         if(screenX>= 25 && screenX<= 225 && y >= 80 && y <= 330 ){
             mario.body.applyForceToCenter(new Vector2(-30, 0), true);
+            KEY_PRESSED = KEY_LEFT;
         }
         return false;
     }
