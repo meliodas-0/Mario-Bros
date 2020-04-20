@@ -21,6 +21,7 @@ import com.mygdx.game.MarioGame;
 import com.mygdx.game.Scenes.Hud;
 import com.mygdx.game.Sprites.Mario;
 import com.mygdx.game.Tools.B2WorldCreator;
+import com.mygdx.game.Tools.WorldContactListener;
 
 public class PlayScreen implements Screen, InputProcessor {
 
@@ -78,6 +79,8 @@ public class PlayScreen implements Screen, InputProcessor {
 
         mario = new Mario(world, this);
         mario.body.setGravityScale(2.4f);
+
+        world.setContactListener(new WorldContactListener());
 
     }
 
