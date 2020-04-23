@@ -68,8 +68,8 @@ public class PlayScreen implements Screen, InputProcessor {
         map = mapLoader.load("level1.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
 
-        gameCam.position.set(400, 110, 0);
-        gameCam.zoom = 0.2f;
+        gameCam.position.set(216, 105, 0);
+        gameCam.zoom = 0.19f;
 
         world = new World(new Vector2(0, -16), true);
         b2dr = new Box2DDebugRenderer();
@@ -112,6 +112,7 @@ public class PlayScreen implements Screen, InputProcessor {
         gameCam.position.x = mario.body.getPosition().x;
         gameCam.update();
         mario.update(delta, KEY_PRESSED);
+        hud.update(delta);
         world.step(1/30f, 6, 2);
         renderer.setView(gameCam);
     }

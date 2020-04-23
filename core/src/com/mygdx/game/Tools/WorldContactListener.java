@@ -19,12 +19,12 @@ public class WorldContactListener implements ContactListener {
 
         if(fixtureA.getUserData() == "head" || fixtureB.getUserData() == "head"){
             Fixture head = fixtureA.getUserData().equals("head") ? fixtureA : fixtureB;
-            Fixture object = fixtureA.getUserData().equals("head") ? fixtureB : fixtureA;
+            Fixture object = head == fixtureA ? fixtureB : fixtureA;
 
 
-            if(object.getUserData() != null && object.getUserData() instanceof InteractiveTileObject){
+            if(object.getUserData() != null && InteractiveTileObject.class.isAssignableFrom(object.getUserData().getClass())){
                 ((InteractiveTileObject)object.getUserData()).onHeadHit();
-                Gdx.app.log("Contacted", "");
+//                Gdx.app.log("Contacted", "");
             }
         }
 

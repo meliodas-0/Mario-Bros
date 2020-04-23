@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.game.MarioGame;
 import com.mygdx.game.Screens.PlayScreen;
 
 public class Mario extends Sprite {
@@ -41,11 +42,9 @@ public class Mario extends Sprite {
         }
 
         marioRun = new Animation(0.1f, frames);
-
         frames.clear();
 
         marioJump = new TextureRegion(getTexture(), 80, 10, 16, 16);
-
         marioStand = new TextureRegion(getTexture(), 0 ,10, 16, 16);
         setBounds(0, 0, 16, 16);
         marioStop = new TextureRegion(getTexture(), 64, 10, 16, 16);
@@ -78,6 +77,7 @@ public class Mario extends Sprite {
             case STANDING:
             default:
                 region = marioStand;
+                break;
         }
 
         if((body.getLinearVelocity().x < 0 || !runningRight) && !region.isFlipX()){
@@ -122,7 +122,8 @@ public class Mario extends Sprite {
         FixtureDef fdef = new FixtureDef();
         CircleShape shape = new CircleShape();
         shape.setRadius(6);
-
+        fdef.filter.categoryBits = MarioGame.MARIO_BIT;
+        fdef.filter.maskBits = MarioGame.DEFAULT_BIT | MarioGame.COIN_BIT | MarioGame.BRICK_BIT;
         fdef.shape = shape;
         body.createFixture(fdef);
 
