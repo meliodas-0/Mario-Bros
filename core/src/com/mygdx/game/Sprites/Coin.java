@@ -26,7 +26,7 @@ public class Coin extends InteractiveTileObject {
     public void onHeadHit() {
         Gdx.app.log("Contact", "Coin");
         getCell().setTile(set.getTile(BLANK_COIN));
-        Hud.addScore(100);
+        Hud.addScore(200);
 
     }
 }
