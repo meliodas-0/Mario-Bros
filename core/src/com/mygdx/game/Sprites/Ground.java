@@ -1,17 +1,16 @@
 package com.mygdx.game.Sprites;
 
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.maps.MapObject;
+import com.mygdx.game.Screens.PlayScreen;
 
 public class Ground extends InteractiveTileObject {
     @Override
-    public void onHeadHit() {
+    public void onHeadHit(Mario mario) {
 
     }
 
-    public Ground(World world, TiledMap tiledMap, Rectangle bounds) {
-        super(world, tiledMap, bounds);
+    public Ground(PlayScreen screen, MapObject  mapObject) {
+        super(screen, mapObject);
         fixture.setUserData(this);
     }
 }

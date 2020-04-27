@@ -1,17 +1,16 @@
 package com.mygdx.game.Sprites;
 
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.maps.MapObject;
+import com.mygdx.game.Screens.PlayScreen;
 
 public class Lives extends InteractiveTileObject {
     @Override
-    public void onHeadHit() {
+    public void onHeadHit(Mario mario) {
 
     }
 
-    public Lives(World world, TiledMap tiledMap, Rectangle bounds) {
-        super(world, tiledMap, bounds);
+    public Lives(PlayScreen screen, MapObject bounds) {
+        super(screen, bounds);
         fixture.setUserData(this);
     }
 }

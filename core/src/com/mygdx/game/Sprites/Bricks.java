@@ -1,24 +1,26 @@
 package com.mygdx.game.Sprites;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.maps.MapObject;
 import com.mygdx.game.MarioGame;
 import com.mygdx.game.Scenes.Hud;
+import com.mygdx.game.Screens.PlayScreen;
 
 public class Bricks extends InteractiveTileObject {
-    public Bricks(World world, TiledMap tiledMap, Rectangle bounds) {
-        super(world, tiledMap, bounds);
+    public Bricks(PlayScreen screen, MapObject  mapObject) {
+        super(screen, mapObject);
         fixture.setUserData(this);
         setCategoryFilter(MarioGame.BRICK_BIT);
     }
 
     @Override
-    public void onHeadHit() {
+    public void onHeadHit(Mario mario) {
         Gdx.app.log("Contact", "Bricks");
         setCategoryFilter(MarioGame.DESTROYED_BIT);
         getCell().setTile(null);
         Hud.addScore(200);
+        MarioGame.manager.get("Audio/Sounds/breakblock.wav", Sound.class).play();
+
     }
 }
