@@ -299,7 +299,7 @@ public class Mario extends Sprite {
 
     private void defineMario()  {
         BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(3100, 80);
+        bodyDef.position.set(208, 80);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         body = world.createBody(bodyDef);
         FixtureDef fdef = new FixtureDef();
