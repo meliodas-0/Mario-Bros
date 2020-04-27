@@ -1,5 +1,7 @@
 package com.mygdx.game.Sprites;
 
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -12,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.MarioGame;
+import com.mygdx.game.Screens.PlayScreen;
 
 public abstract class InteractiveTileObject {
 
@@ -20,12 +23,16 @@ public abstract class InteractiveTileObject {
     protected TiledMapTile tile;
     protected Rectangle bounds;
     protected Body body;
+    protected PlayScreen screen;
     protected Fixture fixture;
+    protected MapObject mapObject;
 
-    public InteractiveTileObject(World world, TiledMap tiledMap, Rectangle bounds) {
-        this.world = world;
-        this.tiledMap = tiledMap;
-        this.bounds = bounds;
+    public InteractiveTileObject(PlayScreen screen, MapObject mapObject) {
+        this.screen = screen;
+        this.mapObject = mapObject;
+        this.world = screen.getWorld();
+        this.tiledMap = screen.getMap();
+        this.bounds = ((RectangleMapObject)mapObject).getRectangle();
 
         BodyDef bodyDef = new BodyDef();
         FixtureDef fixtureDef = new FixtureDef();
@@ -37,10 +44,12 @@ public abstract class InteractiveTileObject {
 
         shape.setAsBox(bounds.getWidth()/2, bounds.getHeight()/2);
         fixtureDef.shape = shape;
+        fixtureDef.filter.categoryBits = MarioGame.OBJECT_BIT;
         fixture = body.createFixture(fixtureDef);
     }
 
-    public abstract void onHeadHit();
+
+    public abstract void onHeadHit(Mario mario);
     public void setCategoryFilter(short filterBit){
         Filter filter = new Filter();
         filter.categoryBits = filterBit;
